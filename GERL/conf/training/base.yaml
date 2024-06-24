@@ -1,0 +1,15 @@
+name: base_training
+batch_size: 128
+learning_rate: 0.0001
+validation_subsample_size: 50000
+subsample_validation: True
+epochs: 10
+gpus: 1
+accumulate: 2
+seed: 7
+master_port: 9237
+model_save_path: ${oc.env:GERL}/outputs/${dataset.size}/${model.name}
+metrics: group_auc || mean_mrr || ndcg@5;10
+validate_epoch: 1
+use_doc_embeddings: False
+use_img_embeddings: False
