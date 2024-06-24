@@ -6,6 +6,8 @@ This dataset was provided by Ekstra Bladet for the 2024 [Recommender System Chal
 
 ## Directory Structure
 Ensure that you have the following directory structure in your home directory:
+
+```
 ├── GERL
 │ └── (GERL_EB-NeRD files and directories)
 └── data
@@ -15,6 +17,7 @@ Ensure that you have the following directory structure in your home directory:
 │ └── (EB-NeRD small dataset files)
 └── ebnerd_large
 └── (EB-NeRD large dataset files)
+```
 
 To run you need a folder "data" in which you should put the "ebnerd_demo", "ebnerd_small", or "ebnerd_large" folders which should contain the EB-NeRD dataset. You can use any size of the dataset. 
 
