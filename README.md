@@ -47,16 +47,16 @@ dataset.valid_name: Pick "eval_examples_subsample.tsv" if you created a validati
 
 ### Example train runs:
 
-*Regular neighbors with word embeddings:*
+*Regular neighbors with word embeddings:*\n
 python -u GERL/src/train.py model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False
 
-*Regular neighbors with document embeddings*:
+*Regular neighbors with document embeddings*:\n
 python -u GERL/src/train.py model.name="facebook_roberta" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True dataset.valid_name="eval_examples_subsample.tsv" doc_emb_kind="facebook_roberta"
 
-*Sorted and ranked neighbors with word embeddings:*
+*Sorted and ranked neighbors with word embeddings:*\n
 python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True
 
-*Image embeddings (work-in-progress):*
+*Image embeddings (work-in-progress):*\n
 python -u GERL/src/train.py dataset.name="examples" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" training.use_img_embeddings=True
 python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True training.use_img_embeddings=True
 
