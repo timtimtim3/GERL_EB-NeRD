@@ -35,7 +35,7 @@ Added: `extract_behavior_histories.py` which extracts the clicked article histor
 
 Added: `extract_read_times.py` which extracts the clicked article histories of users as well as the corresponding read times. Use this instead of `extract_behavior_histories.py` if you want to order one-hops by read time. 
 
-Added: `extract_samples.py` which samples four negative news articles for each
+Added: `extract_samples.py` which samples four negative news articles for each impression in the dataset from the set of inview articles in that impression minus all clicked articles for that user. So each negative sample was seen by the user in that impression, but was never clicked by the user.
 
 Changed: `build_vocabs.py`, we altered this script to work with the EB-NeRD dataset and to build the word and user vocabs and the news-id to title index. We use a Danish word tokenizer to tokenize the news titles. This script no longer builds the word embedding matrix because we added a seperate script for that.
 
