@@ -31,6 +31,8 @@ After this, you can call `train.py` to train a model.
 
 ## What we added
 
+In `GERL/src/scripts`:
+
 Added: `extract_behavior_histories.py` which extracts the clicked article histories of users.
 
 Added: `extract_read_times.py` which extracts the clicked article histories of users as well as the corresponding read times. Use this instead of `extract_behavior_histories.py` if you want to order one-hops by read time. 
@@ -43,6 +45,11 @@ Added: `build_word_emb.py` which loads a [Danish FastText](https://fasttext.cc/d
 
 Added: `build_doc_emb.py` loads the specified document embeddings (specify word2vec, facebook_roberta, or google_bert_multilingual for the `doc_embeddings` argument) and builds the document embedding matrix where each line/index corresponds to a news article with that index. Make sure the vocabs are built first with `build_vocabs.py`.
 
+Changed: `build_neighbors.py` to work with EB-NeRD data and added two boolean arguments `sort_one_hop_by_read_time` and `rank_two_hop_by_common_clicks` which can set to True to sort user and news one-hops by read-time and rank two-hops by commonly clicked articles between users, respectively.
 
+Changed: `build_training_examples.py` and `build_eval_examples.py` to work with the EB-NeRD dataset and to save the .tsv training/validation files in different folders depending on whether you're using `sort_one_hop_by_read_time` or `rank_two_hop_by_common_clicks` or a combination of the two. We also added a `subsample` and `subsample_size` flag to allow subsampling the validation set since the EB-NeRD dataset has a validation set with similar size to the training set which can take an excessive amount of time to validate on. We suggest you subsample for training, and then validate on either the full set afterwards or use a subset as well in `test.py`.
 
+Added: `build_image_emb.py` which extracts the EB-NeRD image embeddings and creates an image embedding matrix using the news vocab which can be used during training.
+
+Changed: In `GERL/src/models/gerl.py`, we added a `ModelDocEmb` which functins similarly to the original `Model` class but loads pretrained document embeddings as trainable parameters and uses these in place of the `Transformer` models that encode the news titles in the original paper. These document embeddings are projected down to match the size of the other representations (128) with a linear layer.
 
