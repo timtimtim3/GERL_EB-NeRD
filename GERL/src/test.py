@@ -7,6 +7,7 @@ CUDA_VISIBLE_DEVICES=0,1,2 python training.py training.gpus=3
 """
 import os
 import argparse
+import numpy as np
 from tqdm import tqdm
 
 import hydra
@@ -18,7 +19,7 @@ from torch.utils.data import DataLoader
 
 from datasets.dataset import TrainingDataset
 from datasets.dataset import ValidationDataset
-from models.gerl import Model
+from models.gerl import Model, ModelDocEmb
 # from utils.log_util import convert_omegaconf_to_dict
 from utils.train_util import set_seed
 from utils.train_util import save_checkpoint_by_epoch
@@ -49,8 +50,15 @@ def run(cfg: DictConfig, rank: int, device: torch.device, corpus_path: str):
     valid_data_loader = DataLoader(
         valid_dataset, batch_size=cfg.training.batch_size)
 
-    # Build model.
-    model = Model(cfg)
+    doc_embeddings = None
+    if cfg.training.use_doc_embeddings:
+        doc_embeddings_path = cfg.dataset.doc_embedding
+        print(f"Loading document embeddings from: {doc_embeddings_path}")
+        doc_embeddings = np.load(doc_embeddings_path)
+        doc_embeddings = torch.tensor(doc_embeddings, dtype=torch.float).to(device)
+        model = ModelDocEmb(cfg, doc_embeddings=doc_embeddings)
+    else:
+        model = Model(cfg)
 
     saved_model_path = os.path.join(cfg.training.model_save_path, 'model.ep{0}'.format(cfg.training.validate_epoch))
     print("Load from:", saved_model_path)
@@ -60,7 +68,8 @@ def run(cfg: DictConfig, rank: int, device: torch.device, corpus_path: str):
     model.cpu()
     pretrained_model = torch.load(saved_model_path, map_location='cpu')
     model.load_state_dict(pretrained_model, strict=False)
-    model.title_encoder.title_embedding = model.title_encoder.title_embedding.to(device)
+    if isinstance(model, Model):
+        model.title_encoder.title_embedding = model.title_encoder.title_embedding.to(device)
     model.to(device)
     model.eval()
     

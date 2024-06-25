@@ -142,8 +142,8 @@ class Model(nn.Module):
             final_user_reps_list.append(user_one_hop_img_rep)
 
         if self.aggregation == "additive":
-            final_user_rep = sum(final_user_reps_list)
-            final_target_reps = sum(final_news_reps_list)
+            final_user_rep = torch.sum(torch.stack(final_user_reps_list), dim=0)
+            final_target_reps = torch.sum(torch.stack(final_news_reps_list), dim=0)
         elif self.aggregation == "attention":
             # User attention
             user_reps_stack = torch.stack(final_user_reps_list, dim=1)  # (batch_size, num_vectors, embedding_size)

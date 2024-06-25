@@ -63,7 +63,6 @@ def run(cfg: DictConfig, rank: int, device: torch.device, corpus_path: str):
     train_data_loader = DataLoader(
         train_dataset, batch_size=cfg.training.batch_size, shuffle=True, drop_last=True)
 
-
     img_embeddings = None
     if cfg.training.use_img_embeddings:
         img_embeddings_path = cfg.dataset.img_embedding
@@ -77,7 +76,7 @@ def run(cfg: DictConfig, rank: int, device: torch.device, corpus_path: str):
         print(f"Loading document embeddings from: {doc_embeddings_path}")
         doc_embeddings = np.load(doc_embeddings_path)
         doc_embeddings = torch.tensor(doc_embeddings, dtype=torch.float).to(device)
-        model = ModelDocEmb(cfg, doc_embeddings=doc_embeddings, img_embeddings=img_embeddings)
+        model = ModelDocEmb(cfg, doc_embeddings=doc_embeddings)
     else:
         model = Model(cfg, img_embeddings=img_embeddings)
 

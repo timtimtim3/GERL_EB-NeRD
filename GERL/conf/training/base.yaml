@@ -2,7 +2,7 @@ name: base_training
 batch_size: 128
 learning_rate: 0.0001
 validation_subsample_size: 50000
-subsample_validation: True
+subsample_validation: False
 epochs: 10
 gpus: 1
 accumulate: 2
