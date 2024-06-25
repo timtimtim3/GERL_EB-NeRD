@@ -23,11 +23,46 @@ To run you need a folder "data" in which you should put the "ebnerd_demo", "ebne
 
 ## Running
 
-You can call `python GERL/src/scripts/build.py` to pre-process the data, build the vocabs, indices, embedding matrices, one-hop and two-fop neighbors, and the train and validation examples all at once. This script calls all the necessary `scripts` in the scripts folder.
+You can call `python GERL/src/scripts/build.py` to pre-process the data, build the vocabs, indices, embedding matrices, one-hop and two-hop neighbors, and the train and validation examples all at once. This script calls all the necessary `scripts` in the scripts folder.
 
 You can also run the scripts individually with additional arguments. For example, you might want to build the neighbors (`build_neighbors.py`) with user and news one-hops sorted by read-time and two-hops ranked by commonly clicked articles (as done in the original paper, but not in the un-official codebase) by setting the `sort_one_hop_by_read_time` and `rank_two_hop_by_common_clicks` to True, respectively.
 
 After this, you can call `train.py` to train a model.
+
+## Hydra
+
+In `GERL/src/conf` there are folders and yaml files for the configuration of the train and test runs. Here is an overview of the arguments we added or regularly used:
+
+training.use_doc_embeddings: Set to True if you want to use EB-NeRD document embeddings instead of word embeddings.
+training.use_img_embeddings: Set to True if you want to use EB-NeRD image embeddings (keep training.use_doc_embeddings to False, this is still a work-in-progress).
+
+model.name: Set to word_emb, word2vec, facebook_roberta, or google_bert_multilingual.
+
+dataset.sort_one_hop_by_read_time: Set to True if you sorted one-hops by read time and want to use those neighbor files.
+dataset.rank_two_hop_by_common_clicks: Set to True if you ranked user two-hops using common clicks and want to use those neighbor files.
+dataset.size: Pick "ebnerd_demo", "ebnerd_small", or "ebnerd_large".
+dataset.doc_emb_kind: Set to word_emb, word2vec, facebook_roberta, or google_bert_multilingual.
+dataset.name: Set to "examples", "examples_rt", "examples_ranked", or "examples_rt_ranked". We use "examples" (regular neighbors) and "examples_rt_ranked" (sorted by readtime and ranked by common clicks).
+dataset.valid_name: Pick "eval_examples_subsample.tsv" if you created a validation subsample with `build_eval_examples.py` (see section "What we added") otherwise use default ("eval_examples.tsv").
+
+### Example train runs:
+
+*Regular neighbors with word embeddings:*
+python -u GERL/src/train.py model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False
+
+*Regular neighbors with document embeddings*:
+python -u GERL/src/train.py model.name="facebook_roberta" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True dataset.valid_name="eval_examples_subsample.tsv"
+
+*Sorted and ranked neighbors with word embeddings:*
+python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True
+
+*Image embeddings (work-in-progress):*
+python -u GERL/src/train.py dataset.name="examples" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" training.use_img_embeddings=True
+python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True training.use_img_embeddings=True
+
+### Example test runs:
+
+
 
 ## What we added
 
@@ -53,6 +88,8 @@ Added: `build_image_emb.py` which extracts the EB-NeRD image embeddings and crea
 
 Changed: In `GERL/src/models/gerl.py`, we added a `ModelDocEmb` class which functions similarly to the original `Model` class but loads pretrained document embeddings as trainable parameters and uses these in place of the `Transformer` models that encode the news titles in the original paper. These document embeddings are projected down to match the size of the other representations (128) with a linear layer.
 
-Work-in-progress: In `GERL/src/models/gerl.py`, we adapted the `Model` class to allow for including image embeddings for each news article. The idea is to index into the learnable image embedding matrix to get the image embeddings for the Neighbor News (news two-hops), Clicked News (user one-hops), and Candidate News and project the embeddings down to 128 using a learnt linear projection. We then add a `SelfAttendLayer`, one for the news image two-hops and one for the user image one-hops, to attend over the different image ebeddings to get a 128-sized news two-hop image representation and a 128-sized user one-hop image representation. We then append the news two-hop image representation and the candidate news image embedding to a list of existing news representations (which contains three elements in the paper) and aggregate over those five 128-sized vectors e.g. by summing them. We add the user one-hop image representation to the list of user representations and aggregate those four 128-sized vectors using the same method e.g. by summing.
+Changed: We adapted `train.py` and `test.py` so they create a normal model or a document embedding model based on the config. We adusted them to be able to differentiate between different graphs "_rt" (one-hops sorted by read time), "_ranked" (two-hops ranked by common clicks), "_rt_ranked" (both), and the regular graph. All this does is loading the correct neighbor files and saving the models and metrics in different folders. 
 
-Work-in-progress: In `GERL/src/models/gerl.py`, we adapted the `Model` class to allow for additional aggregation methods for the different user representions and news representations. This includes summing the different news or user representations (as in the original paper), but we allow for passing the representations through an MLP instead so that the final aggregation may be learned, and allow as another option a Multi-Head attention network coupled with a projection layer that projects the user or news representation to the right size (128). Finally, we take the dot product between the news and user representations. The MLP and Multi-Head attention aggregation methods are a work in progress so you should use adding for now.
+Work-in-progress: In `GERL/src/models/gerl.py`, we adapted the `Model` class to allow for including the EB-NeRD pre-trainedd image embeddings for each news article. The idea is to index into the learnable image embedding matrix to get the image embeddings for the Neighbor News (news two-hops), Clicked News (user one-hops), and Candidate News and project the embeddings down to 128 using a learnt linear projection. We then add a `SelfAttendLayer`, one for the news image two-hops and one for the user image one-hops, to attend over the different image ebeddings to get a 128-sized news two-hop image representation and a 128-sized user one-hop image representation. We then append the news two-hop image representation and the candidate news image embedding to a list of existing news representations (which contains three elements in the paper) and aggregate over those five 128-sized vectors e.g. by summing them. We add the user one-hop image representation to the list of user representations and aggregate those four 128-sized vectors using the same method e.g. by summing.
+
+Work-in-progress: In `GERL/src/models/gerl.py`, we adapted the `Model` class to allow for additional aggregation methods for the different user representions and news representations. This includes summing the different news or user representations (as in the original paper), but we also allow for passing the representations through an MLP instead so that the final aggregation may be learned, and allow as another option a Multi-Head attention network coupled with a projection layer that projects the user or news representation to the right size (128). Finally, we take the dot product between the news and user representations. The MLP and Multi-Head attention aggregation methods are a work in progress so you should use adding for now (default).
