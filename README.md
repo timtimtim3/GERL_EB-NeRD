@@ -33,22 +33,23 @@ After this, you can call `train.py` to train a model.
 
 In `GERL/src/conf` there are folders and yaml files for the configuration of the train and test runs. Here is an overview of the arguments we added or regularly used:
 
-training.use_doc_embeddings: Set to True if you want to use EB-NeRD document embeddings instead of word embeddings.
-training.use_img_embeddings: Set to True if you want to use EB-NeRD image embeddings (keep training.use_doc_embeddings to False, this is still a work-in-progress).
-
-model.name: Set to "word_emb", "word2vec", "facebook_roberta", or "google_bert_multilingual".
-
-dataset.sort_one_hop_by_read_time: Set to True if you sorted one-hops by read time and want to use those neighbor files.
-dataset.rank_two_hop_by_common_clicks: Set to True if you ranked user two-hops using common clicks and want to use those neighbor files.
-dataset.size: Pick "ebnerd_demo", "ebnerd_small", or "ebnerd_large".
-dataset.doc_emb_kind: Set to "word_emb", "word2vec", "facebook_roberta", or "google_bert_multilingual".
-dataset.name: Set to "examples", "examples_rt", "examples_ranked", or "examples_rt_ranked". We use "examples" (regular neighbors) and "examples_rt_ranked" (sorted by readtime and ranked by common clicks).
-dataset.valid_name: Pick "eval_examples_subsample.tsv" if you created a validation subsample with `build_eval_examples.py` (see section "What we added") otherwise use default ("eval_examples.tsv").
+- `training.use_doc_embeddings`: Set to True if you want to use EB-NeRD document embeddings instead of word embeddings.
+- `training.use_img_embeddings`: Set to True if you want to use EB-NeRD image embeddings (keep `training.use_doc_embeddings` to False, this is still a work-in-progress).
+- `model.name`: Set to "word_emb", "word2vec", "facebook_roberta", or "google_bert_multilingual".
+- `dataset.sort_one_hop_by_read_time`: Set to True if you sorted one-hops by read time and want to use those neighbor files.
+- `dataset.rank_two_hop_by_common_clicks`: Set to True if you ranked user two-hops using common clicks and want to use those neighbor files.
+- `dataset.size`: Pick "ebnerd_demo", "ebnerd_small", or "ebnerd_large".
+- `dataset.doc_emb_kind`: Set to "word_emb", "word2vec", "facebook_roberta", or "google_bert_multilingual".
+- `dataset.name`: Set to "examples", "examples_rt", "examples_ranked", or "examples_rt_ranked". We use "examples" (regular neighbors) and "examples_rt_ranked" (sorted by readtime and ranked by common clicks).
+- `dataset.valid_name`: Pick "eval_examples_subsample.tsv" if you created a validation subsample with `build_eval_examples.py` (see section "What we added") otherwise use default ("eval_examples.tsv").
 
 ### Example train runs:
 
-*Regular neighbors with word embeddings:*\n
+**Regular neighbors with word embeddings:**
+
+```bash
 python -u GERL/src/train.py model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False
+```
 
 *Regular neighbors with document embeddings*:\n
 python -u GERL/src/train.py model.name="facebook_roberta" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True dataset.valid_name="eval_examples_subsample.tsv" doc_emb_kind="facebook_roberta"
