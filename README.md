@@ -51,26 +51,47 @@ In `GERL/src/conf` there are folders and yaml files for the configuration of the
 python -u GERL/src/train.py model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False
 ```
 
-*Regular neighbors with document embeddings*:\n
+**Regular neighbors with document embeddings:**
+
+```bash
 python -u GERL/src/train.py model.name="facebook_roberta" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True dataset.valid_name="eval_examples_subsample.tsv" doc_emb_kind="facebook_roberta"
+```
 
-*Sorted and ranked neighbors with word embeddings:*\n
+**Sorted and ranked neighbors with word embeddings:**
+
+```bash
 python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True
+```
 
-*Image embeddings (work-in-progress):*\n
+**Image embeddings (work-in-progress):**
+
+```bash
 python -u GERL/src/train.py dataset.name="examples" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" training.use_img_embeddings=True
+```
+
+```bash
 python -u GERL/src/train.py dataset.name="examples_rt_ranked" model.name="word_emb" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=False dataset.valid_name="eval_examples_subsample.tsv" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True training.use_img_embeddings=True
+```
 
 ### Example test runs:
 
-*Regular neighbors with word embeddings:*
+**Regular neighbors with word embeddings:**
+
+```bash
 python -u GERL/src/test.py model.name="word_emb" training.validate_epoch=10 dataset.size="ebnerd_small"
+```
 
-*Regular neighbors with document embeddings*:
+**Regular neighbors with document embeddings:**
+
+```bash
 srun python -u GERL/src/test.py model.name="facebook_roberta" training.validate_epoch=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True doc_emb_kind="facebook_roberta"
+```
 
-*Sorted and ranked neighbors with word embeddings:*
+**Sorted and ranked neighbors with word embeddings:**
+
+```bash
 python -u GERL/src/test.py dataset.name="examples_rt_ranked" model.name="word_emb" training.validate_epoch=10 dataset.size="ebnerd_small" dataset.sort_one_hop_by_read_time=True dataset.rank_two_hop_by_common_clicks=True
+```
 
 ## What we added
 
