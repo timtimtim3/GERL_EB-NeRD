@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu
+#SBATCH --gpus=1
+#SBATCH --job-name=TrainRun
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=18
+#SBATCH --time=01:45:00
+#SBATCH --output=slurm_output_train_%A.out
+#SBATCH --export=GERL
+
+module purge
+module load 2023
+module load Anaconda3/2023.07-2
+module load GCC/12.3.0
+
+source ~/.bash_profile
+
+conda activate recsys
+
+# Docs embs:
+srun python -u GERL/src/train.py model.name="google_bert_multilingual" training.epochs=10 dataset.size="ebnerd_small" training.use_doc_embeddings=True training.subsample_validation=False dataset.valid_name="eval_examples_subsample.tsv"
